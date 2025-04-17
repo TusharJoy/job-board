@@ -150,48 +150,91 @@ class JobScraper {
 
   async scrapeRelocateJobs(keyword) {
     try {
-      console.log("Starting Relocate.me scraping...");
-      const searchUrl = `https://relocate.me/api/jobs/search?q=${encodeURIComponent(
+      console.log("Starting Relocate.me HTML scraping...");
+      const searchUrl = `https://relocate.me/search?q=${encodeURIComponent(
         keyword
       )}`;
-      console.log("Relocate.me URL:", searchUrl);
+      console.log("Relocate.me Search URL:", searchUrl);
 
-      const response = await this.axiosInstance.get(searchUrl, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+      const response = await this.axiosInstance.get(searchUrl);
+      const $ = cheerio.load(response.data);
+
+      const jobs = [];
+      // Use selectors based on the provided HTML structure
+      $(".jobs-list__job").each((i, element) => {
+        try {
+          const titleElement = $(element).find(".job__title a b");
+          const companyElement = $(element).find(
+            ".job__info > div:nth-child(2) p"
+          ); // Second div for company
+          const locationElement = $(element).find(
+            ".job__info > div:first-child p"
+          ); // First div for location
+          const urlElement = $(element).find(".job__title a"); // Link containing title and URL
+          const descriptionElement = $(element).find(".job__preview");
+
+          const title = titleElement.text().trim();
+          const company = companyElement.text().trim();
+          const location = locationElement.text().trim();
+          let url = urlElement.attr("href");
+
+          // Ensure the URL is absolute
+          if (url && !url.startsWith("http")) {
+            url = `https://relocate.me${url}`;
+          }
+
+          const description = descriptionElement.text().trim() || "";
+
+          // Log extracted data for debugging
+          // console.log(`-- Relocate.me Raw Data --`);
+          // console.log(`   Title: ${title}`);
+          // console.log(`   Company: ${company}`);
+          // console.log(`   Location: ${location}`);
+          // console.log(`   URL: ${url}`);
+          // console.log(`   Description: ${description}`);
+
+          if (title && company && url) {
+            const job = {
+              title,
+              company,
+              location: location || "Location not specified",
+              url,
+              source: "Relocate.me",
+              description,
+              jobType: determineJobType(title, description),
+            };
+            console.log("Found Relocate.me job:", job.title);
+            jobs.push(job);
+          } else {
+            // Log if essential data is missing
+            // console.log(`Skipping Relocate.me item due to missing data: Title='${title}', Company='${company}', URL='${url}'`);
+          }
+        } catch (err) {
+          console.error("Error parsing Relocate.me job HTML:", err);
+        }
       });
 
-      if (!response.data || !Array.isArray(response.data)) {
-        console.log("No jobs found from Relocate.me");
-        return [];
-      }
-
-      const jobs = response.data.map((job) => ({
-        title: job.title || "",
-        company: job.company_name || "",
-        location: job.country || "",
-        url: `https://relocate.me/jobs/${job.id}`,
-        source: "Relocate.me",
-        description: job.description || "",
-        jobType: determineJobType(job.title, job.description),
-      }));
-
-      console.log(`Relocate.me scraping complete. Found ${jobs.length} jobs.`);
+      console.log(
+        `Relocate.me HTML scraping complete. Found ${jobs.length} jobs.`
+      );
       return jobs;
     } catch (error) {
-      console.error("Error scraping Relocate.me jobs:", error.message);
+      if (error.response) {
+        console.error(
+          `Error scraping Relocate.me HTML: Status ${error.response.status}`,
+          error.message
+        );
+      } else {
+        console.error("Error scraping Relocate.me HTML:", error.message);
+      }
       return [];
     }
   }
 
   async scrapeLarajobs(keyword = "software engineer") {
     try {
-      console.log("Starting Larajobs scraping...");
-      const searchUrl = `https://larajobs.com/api/jobs?search=${encodeURIComponent(
-        keyword
-      )}`;
+      console.log("Starting Larajobs scraping (all jobs)...");
+      const searchUrl = `https://larajobs.com/api/jobs`;
       console.log("Larajobs URL:", searchUrl);
 
       const response = await this.axiosInstance.get(searchUrl, {
@@ -224,92 +267,81 @@ class JobScraper {
     }
   }
 
-  async scrapeJSJobs(keyword = "software engineer") {
-    try {
-      console.log("Starting JSJobs scraping...");
-      const searchUrl = `https://jsjobs.com/api/v1/jobs?q=${encodeURIComponent(
-        keyword
-      )}`;
-      console.log("JSJobs URL:", searchUrl);
-
-      const response = await this.axiosInstance.get(searchUrl, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-          Referer: "https://jsjobs.com/",
-        },
-      });
-
-      if (!response.data || !Array.isArray(response.data.jobs)) {
-        console.log("No jobs found from JSJobs");
-        return [];
-      }
-
-      const jobs = response.data.jobs.map((job) => ({
-        title: job.title || "",
-        company: job.company || "",
-        location: job.location || "Remote",
-        url: `https://jsjobs.com/jobs/${job.id}`,
-        source: "JSJobs",
-        description: job.description || "",
-        jobType: determineJobType(job.title, job.description),
-      }));
-
-      console.log(`JSJobs scraping complete. Found ${jobs.length} jobs.`);
-      return jobs;
-    } catch (error) {
-      console.error("Error scraping JSJobs:", error.message);
-      return [];
-    }
-  }
-
   async scrapeVueJobs(keyword = "software engineer") {
     try {
-      console.log("Starting VueJobs scraping...");
-      const searchUrl = "https://vuejobs.com/api/jobs/search";
-      console.log("VueJobs URL:", searchUrl);
+      console.log("Starting VueJobs HTML scraping (all jobs)...");
+      const searchUrl = `https://vuejobs.com/jobs`; // Fetch the main jobs page without keyword query
+      console.log("VueJobs Jobs URL:", searchUrl);
 
-      const response = await this.axiosInstance.post(
-        searchUrl,
-        {
-          query: keyword,
-          page: 1,
-          perPage: 100,
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            Origin: "https://vuejobs.com",
-            Referer: "https://vuejobs.com/jobs",
-          },
+      const response = await this.axiosInstance.get(searchUrl);
+      const $ = cheerio.load(response.data);
+
+      const jobs = [];
+      // Selectors based on provided HTML for VueJobs
+      $('a[href^="/jobs/"]').each((i, element) => {
+        try {
+          const titleElement = $(element).find(
+            ".font-display.text-lg.font-bold"
+          );
+          const companyElement = $(element).find(
+            ".text-sm.font-medium.text-muted"
+          );
+          const locationElement = $(element).find(
+            '.text-xs.mt-3 span.inline-flex[class*="gap-1.5"]'
+          );
+          const salaryElement = $(element).find(
+            '.text-xs.mt-3 span[class*="bg-purple-100"]'
+          );
+          const url = $(element).attr("href");
+
+          const title = titleElement.text().trim();
+          const company = companyElement.text().replace("at ", "").trim(); // Remove 'at '
+          const location = locationElement.text().trim();
+          const salary = salaryElement.text().trim() || null;
+          let absoluteUrl = url;
+
+          // Ensure the URL is absolute
+          if (absoluteUrl && !absoluteUrl.startsWith("http")) {
+            absoluteUrl = `https://vuejobs.com${absoluteUrl}`;
+          }
+
+          // Simple description placeholder (can't get from list view)
+          const description = "";
+
+          // REMOVED keyword check
+          // const matchesKeyword = keyword ? `${title} ${company}`.toLowerCase().includes(keyword.toLowerCase()) : true;
+
+          if (title && company && absoluteUrl /*&& matchesKeyword - REMOVED*/) {
+            const job = {
+              title,
+              company,
+              location: location || "Location not specified",
+              url: absoluteUrl,
+              source: "VueJobs",
+              description,
+              salary,
+              jobType: determineJobType(title, description),
+            };
+            // Only log if found, to avoid spamming console for every job on the page
+            // console.log("Found VueJobs job:", job.title);
+            jobs.push(job);
+          }
+        } catch (err) {
+          console.error("Error parsing VueJobs job HTML:", err);
         }
-      );
+      });
 
-      if (!response.data || !Array.isArray(response.data.jobs)) {
-        console.log("No jobs found from VueJobs");
-        return [];
-      }
-
-      const jobs = response.data.jobs.map((job) => ({
-        title: job.title || "",
-        company: job.company ? job.company.name : "Unknown Company",
-        location: job.location || "Remote",
-        url: `https://vuejobs.com/jobs/${job.id}`,
-        source: "VueJobs",
-        description: job.description || "",
-        salary: job.salary || null,
-        jobType: determineJobType(job.title, job.description),
-      }));
-
-      console.log(`VueJobs scraping complete. Found ${jobs.length} jobs.`);
+      console.log(`VueJobs HTML scraping complete. Found ${jobs.length} jobs.`);
       return jobs;
     } catch (error) {
-      console.error("Error scraping VueJobs:", error.message);
+      if (error.response) {
+        console.error(
+          `Error scraping VueJobs HTML: Status ${error.response.status}`,
+          error.message
+        );
+      } else {
+        console.error("Error scraping VueJobs HTML:", error.message);
+      }
       return [];
     }
   }
@@ -320,21 +352,14 @@ class JobScraper {
     );
     try {
       // Scrape from all sources in parallel
-      const [
-        linkedInJobs,
-        remoteOKJobs,
-        relocateJobs,
-        larajobs,
-        jsjobs,
-        vuejobs,
-      ] = await Promise.all([
-        this.scrapeLinkedInJobs(keyword, location),
-        this.scrapeRemoteOKJobs(keyword),
-        this.scrapeRelocateJobs(keyword),
-        this.scrapeLarajobs(keyword),
-        this.scrapeJSJobs(keyword),
-        this.scrapeVueJobs(keyword),
-      ]);
+      const [linkedInJobs, remoteOKJobs, relocateJobs, larajobs, vuejobs] =
+        await Promise.all([
+          this.scrapeLinkedInJobs(keyword, location),
+          this.scrapeRemoteOKJobs(keyword),
+          this.scrapeRelocateJobs(keyword),
+          this.scrapeLarajobs(keyword),
+          this.scrapeVueJobs(keyword),
+        ]);
 
       // Combine all jobs
       const allJobs = [
@@ -342,7 +367,6 @@ class JobScraper {
         ...remoteOKJobs,
         ...relocateJobs,
         ...larajobs,
-        ...jsjobs,
         ...vuejobs,
       ];
 
@@ -351,7 +375,6 @@ class JobScraper {
       console.log(`- RemoteOK: ${remoteOKJobs.length} jobs`);
       console.log(`- Relocate.me: ${relocateJobs.length} jobs`);
       console.log(`- Larajobs: ${larajobs.length} jobs`);
-      console.log(`- JSJobs: ${jsjobs.length} jobs`);
       console.log(`- VueJobs: ${vuejobs.length} jobs`);
 
       return allJobs;

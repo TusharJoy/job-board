@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Board
+
+A modern job board application that aggregates job listings from multiple sources including LinkedIn, RemoteOK, Relocate.me, Larajobs, JSJobs, and VueJobs.
+
+## Features
+
+- 🔍 Real-time job search with keyword and location filtering
+- 💼 Multiple job sources in one place
+- 🎯 Job type filtering (Full-time, Part-time, Contract, etc.)
+- 🌐 Remote job listings
+- 🎨 Modern UI with dark mode support
+- 🔄 Automatic job scraping
+- 📱 Responsive design
+
+## Tech Stack
+
+### Frontend
+
+- React with Vite
+- TailwindCSS for styling
+- React Router for navigation
+- Radix UI primitives
+- TypeScript
+
+### Backend
+
+- Node.js with Express
+- Puppeteer for web scraping
+- PostgreSQL with Sequelize
+- REST API
+
+## Project Structure
+
+```
+job-board/
+├── client/             # Frontend React application
+│   ├── src/
+│   │   ├── components/ # Reusable UI components
+│   │   ├── pages/     # Page components
+│   │   └── lib/       # Utilities and helpers
+│   └── ...
+└── server/            # Backend Node.js application
+    ├── src/
+    │   ├── controllers/
+    │   ├── models/
+    │   ├── routes/
+    │   └── services/
+    └── ...
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd job-board
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install frontend dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd client
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Install backend dependencies:
 
-## Learn More
+```bash
+cd ../server
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Set up environment variables:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   - Copy `.env.example` to `.env` in the server directory
+   - Update the database connection string and other required variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Start the development servers:
 
-## Deploy on Vercel
+Frontend:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cd client
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Backend:
+
+```bash
+cd server
+npm run dev
+```
+
+The application will be available at:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
+
+## API Routes
+
+- `GET /api/jobs` - Get all jobs
+- `GET /api/jobs/search` - Search jobs with filters
+- `POST /api/jobs/scrape` - Trigger job scraping
+- `GET /api/jobs/:id` - Get job details by ID
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [RemoteOK](https://remoteok.com) - Job listings
+- [Relocate.me](https://relocate.me) - Job listings
+- [Larajobs](https://larajobs.com) - Job listings
+- [JSJobs](https://jsjobs.com) - Job listings
+- [VueJobs](https://vuejobs.com) - Job listings

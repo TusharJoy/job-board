@@ -62,20 +62,23 @@ function Home() {
   if (loading) {
     return (
       <div className="space-y-8">
-        <div className="flex flex-col items-center space-y-4">
-          <Skeleton className="h-10 w-1/2" />
-          <div className="flex gap-4 w-full max-w-2xl">
-            <Skeleton className="h-10 flex-1" />
-            <Skeleton className="h-10 flex-1" />
-            <Skeleton className="h-10 w-24" />
-          </div>
+        <div className="flex flex-col items-center space-y-4 text-center py-10 md:py-12">
+          <Skeleton className="h-12 w-3/4 max-w-lg" />
+          <Skeleton className="h-6 w-1/2 max-w-md mt-2" />
         </div>
+        <Card className="max-w-3xl mx-auto p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <Skeleton className="h-10 flex-1 w-full" />
+            <Skeleton className="h-10 flex-1 w-full" />
+            <Skeleton className="h-10 w-full sm:w-24" />
+          </div>
+        </Card>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, index) => (
-            <Card key={index} className="h-full">
+            <Card key={index} className="h-full border border-transparent">
               <CardHeader className="flex flex-row items-start gap-4 space-y-0">
                 <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1">
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </div>
@@ -86,7 +89,7 @@ function Home() {
                   <Skeleton className="h-5 w-24" />
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
+              <CardFooter className="flex justify-between items-center text-sm text-muted-foreground mt-auto pt-4">
                 <Skeleton className="h-4 w-1/4" />
                 <Skeleton className="h-4 w-2/5" />
                 <Skeleton className="h-9 w-24" />
@@ -100,10 +103,16 @@ function Home() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col items-center space-y-4">
-        <h1 className="text-4xl font-bold">Find Your Dream Job</h1>
-        <form onSubmit={handleSearch} className="flex gap-4 w-full max-w-2xl items-center">
-          <div className="relative flex-1">
+      <div className="flex flex-col items-center space-y-4 text-center py-6 md:py-6">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Find Your Dream Job</h1>
+        <p className="max-w-xl text-lg text-muted-foreground">
+          Explore thousands of job openings from leading companies worldwide.
+        </p>
+      </div>
+
+      <Card className="max-w-3xl mx-auto p-6">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -113,7 +122,7 @@ function Home() {
               className="pl-10"
             />
           </div>
-          <div className="relative flex-1">
+          <div className="relative flex-1 w-full sm:w-auto">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -123,7 +132,7 @@ function Home() {
               className="pl-10"
             />
           </div>
-          <Button type="submit" disabled={isSearching} className="w-24">
+          <Button type="submit" disabled={isSearching} className="w-full sm:w-24">
             {isSearching ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -131,12 +140,15 @@ function Home() {
             )}
           </Button>
         </form>
-      </div>
+      </Card>
 
       {jobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {jobs.map((job) => (
-            <Card key={job.id} className="h-full hover:bg-accent/50 transition-colors flex flex-col">
+            <Card 
+              key={job.id} 
+              className="h-full hover:bg-accent/50 transition-colors flex flex-col border border-transparent hover:border-primary/20"
+            >
               <CardHeader className="flex flex-row items-start gap-4 space-y-0">
                 <Avatar className="hidden sm:flex h-12 w-12">
                   <AvatarImage src={job.companyLogoUrl} alt={`${job.company} logo`} />
@@ -144,7 +156,7 @@ function Home() {
                     {job.company?.substring(0, 2).toUpperCase() || '??'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1">
                   <CardTitle>{job.title}</CardTitle>
                   <CardDescription>{job.company}</CardDescription>
                 </div>

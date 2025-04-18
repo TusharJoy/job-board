@@ -89,6 +89,7 @@ function Home() {
               <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
                 <Skeleton className="h-4 w-1/4" />
                 <Skeleton className="h-4 w-2/5" />
+                <Skeleton className="h-9 w-24" />
               </CardFooter>
             </Card>
           ))}
@@ -135,27 +136,27 @@ function Home() {
       {jobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {jobs.map((job) => (
-            <Link to={`/jobs/${job.id}`} key={job.id}>
-              <Card className="h-full hover:bg-accent/50 transition-colors">
-                <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-                  <Avatar className="hidden sm:flex h-12 w-12">
-                    <AvatarImage src={job.companyLogoUrl} alt={`${job.company} logo`} />
-                    <AvatarFallback>
-                      {job.company?.substring(0, 2).toUpperCase() || '??'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-1">
-                    <CardTitle>{job.title}</CardTitle>
-                    <CardDescription>{job.company}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">{job.location}</Badge>
-                    <Badge variant="outline">{job.jobType}</Badge>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
+            <Card key={job.id} className="h-full hover:bg-accent/50 transition-colors flex flex-col">
+              <CardHeader className="flex flex-row items-start gap-4 space-y-0">
+                <Avatar className="hidden sm:flex h-12 w-12">
+                  <AvatarImage src={job.companyLogoUrl} alt={`${job.company} logo`} />
+                  <AvatarFallback>
+                    {job.company?.substring(0, 2).toUpperCase() || '??'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <CardTitle>{job.title}</CardTitle>
+                  <CardDescription>{job.company}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">{job.location}</Badge>
+                  <Badge variant="outline">{job.jobType}</Badge>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between items-center text-sm text-muted-foreground mt-auto pt-4">
+                <div className="flex items-center gap-2">
                   <span>{new Date(job.createdAt).toLocaleDateString()}</span>
                   {job.source && (
                     <span className="flex items-center gap-1.5">
@@ -163,9 +164,14 @@ function Home() {
                       {job.source}
                     </span>
                   )}
-                </CardFooter>
-              </Card>
-            </Link>
+                </div>
+                <Button size="sm" asChild>
+                  <a href={job.url} target="_blank" rel="noopener noreferrer">
+                    Apply Now
+                  </a>
+                </Button>
+              </CardFooter>
+            </Card>
           ))}
         </div>
       ) : (

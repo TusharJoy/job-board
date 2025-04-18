@@ -87,5 +87,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Add font smoothing */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11"; 
+    @apply antialiased;
   }
 } 

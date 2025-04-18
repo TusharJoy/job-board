@@ -44,6 +44,8 @@ This is the Node.js/Express backend server for the Job Board application. It han
 
 The server will typically run on the port specified in the `.env` file (e.g., 5000) or default to 5000.
 
+**Note:** A cron job is configured within the application (`src/index.js`) using `node-cron` to automatically trigger the job scraping process (`POST /api/jobs/scrape`) daily at midnight UTC. Check the console logs for details when the server is running.
+
 ## API Endpoints
 
 Base URL: `/api/jobs`

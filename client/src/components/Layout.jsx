@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Toaster } from "@/components/ui/toaster"
 
 function Layout({ children }) {
   return (
@@ -12,9 +13,6 @@ function Layout({ children }) {
           <nav className="flex gap-4">
             <Button variant="ghost" asChild>
               <Link to="/">Home</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/jobs">All Jobs</Link>
             </Button>
           </nav>
         </div>
@@ -29,6 +27,7 @@ function Layout({ children }) {
           © {new Date().getFullYear()} Job Board. All rights reserved.
         </div>
       </footer>
+      <Toaster />
     </div>
   )
 }

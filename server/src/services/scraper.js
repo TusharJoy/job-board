@@ -133,7 +133,7 @@ class JobScraper {
           title: item.position,
           company: item.company,
           location: "Remote",
-          url: `https://remoteok.com${item.url}`,
+          url: item.url,
           source: "RemoteOK",
           salary: item.salary || null,
           description: item.description || null,
